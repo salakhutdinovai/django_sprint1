@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+    <article>
+        <h1>{{ post.title }}</h1>
+        <ul>
+            <li>Место: {{ post.location|default:"Не указано" }}</li>
+            <li>Дата: {{ post.pub_date }}</li>
+            <li>Автор: <a href="{% url 'blog:user_profile' post.author.username %}">{{ post.author.username }}</a></li>
+            <li>Категория: <a href="{% url 'blog:category_posts' post.category.slug %}">{{ post.category.name }}</a></li>
+        </ul>
+        <p>{{ post.content|linebreaksbr }}</p>
+    </article>
+    <h3>Комментарии</h3>
+    {% for comment in post.comments.all %}
+        <p><strong>{{ comment.author.username }}</strong> ({{ comment.created_at }}): {{ comment.content }}</p>
+    {% empty %}
+        <p>Пока нет комментариев.</p>
+    {% endfor %}
+    {% if user.is_authenticated %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
+    {% endif %}
+{% endblock %}
